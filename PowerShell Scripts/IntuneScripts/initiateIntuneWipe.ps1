@@ -14,17 +14,17 @@ Import-Module Microsoft.Graph.DeviceManagement.Actions
 Import-Module Microsoft.Graph.Authentication 
         
 #Connect to Graph
-Connect-MgGraph -ClientId '469cf6a6-0b2c-4eff-94ee-7e1e72af91d2' -CertificateThumbprint "F1E3B4C5A6FBB15734031DEAD457EFCDF5E8C4FF" -TenantId '6d798b83-1769-4a29-9f77-8b9fae1560df'
+Connect-MgGraph -Scopes DeviceManagementManagedDevices.PrivilegedOperations.All
 
 #Enable logging
 Start-Transcript -Path $env:USERPROFILE\Documents\initiateIntuneWipe.log 
 
 #Create a list that will be populated with all devices removed by the script
-#$deletedDevices = New-Object System.Collections.Generic.List[System.Object]
+$wipedDevices = New-Object System.Collections.Generic.List[System.Object]
 
 
 #Import CSV that contains device information. Make sure managed device IDs on CSV are labeled "SerialNumber"
-$path = 
+$path = "C:\users\udeh.ndukwe\devices.csv"
 $devices = Import-Csv -Path $path
 
 #Collect all Intune devices
