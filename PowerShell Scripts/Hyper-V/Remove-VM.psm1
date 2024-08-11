@@ -8,6 +8,7 @@
     BEGIN {
         $VM = Get-VM -Name $VMName
         $VHD = Get-VHD -VMId $vm.Id
+        Stop-VM -vm $VM -Force
     }
 
     PROCESS {
@@ -17,8 +18,12 @@
         catch {
             Write-Verbose -Message $_.Exception.Message -Verbose
         }
-        finally {
-            Remove-item -Path $vhd.Path
+        try {
+            Remove-item -Path $vhd.Path -erroraction Stop
+        }
+        catch {
+            $path = Read-Host -Prompt "Enter proper VHD path here"
+            Remove-Item -Path $path
         }
     }
 }
