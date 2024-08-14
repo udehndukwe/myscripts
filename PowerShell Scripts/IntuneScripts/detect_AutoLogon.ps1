@@ -8,6 +8,10 @@ $Name = $DefaultUserName.DefaultUserName
 $IsConnectedvalue = $isConnectedAutoLogon.isConnectedAutoLogon
 $AutoAdminValue = $AutoAdminLogon.AutoAdminLogon
 
-if ($AutoAdminValue -eq 1 -and $Name -eq "kioskUser0" -and $IsConnectedvalue -eq '0') {
-    Write-Output "AutoLogon configured properly on this Kiosk machine."
+if ($AutoAdminValue -ne 1 -and $Name -ne "kioskUser0" -and $IsConnectedvalue -ne '0') {
+    Write-Output "Autologon reg keys not set properly"
+    exit 0
+}
+else {
+    exit 1
 }
