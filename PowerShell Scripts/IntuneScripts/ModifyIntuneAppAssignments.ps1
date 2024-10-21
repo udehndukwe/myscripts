@@ -1,32 +1,45 @@
-$macApps = Get-IntuneApps -Platform macOS
-
-$obj = foreach ($app in $macApps) {
-    $assignment = Get-MgDeviceAppManagementMobileAppAssignment -MobileAppId $app.id
-    foreach ($assign in $assignment) {
-        $GroupID = $assign.Id -replace "_.*", ""
-        try {
-            $group = Get-MgGroup -groupId $GroupID -ErrorAction Stop
-            $name = $group.DisplayName
-        }
-        catch {
-            if ($GroupID -eq 'acacacac-9df4-4c7d-9d50-4ef0226f57a9') {
-                $name = "All users"
-                $GroupID = "N/A"
-            }
-        }
+function Get-IntuneAppAssignments {
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [object[]]$Apps
+    )
+    PROCESS {
+        $obj = foreach ($app in $apps) {
+            $assignment = Get-MgDeviceAppManagementMobileAppAssignment -MobileAppId $app.id
+            foreach ($assign in $assignment) {
+                $GroupID = $assign.Id -replace "_.*", ""
+                try {
+                    $group = Get-MgGroup -groupId $GroupID -ErrorAction Stop
+                    $name = $group.DisplayName
+                }
+                catch {
+                    if ($GroupID -eq 'acacacac-9df4-4c7d-9d50-4ef0226f57a9') {
+                        $name = "All users"
+                        $GroupID = "N/A"
+                    }
+                    elseif ($GroupID -eq 'adadadad-808e-44e2-905a-0b7873a8a531') {
+                        $name = "All devices"
+                        $GroupID = "N/A"
+                    }
+                }
     
-        [PSCustomObject]@{
-            AppName         = $app.displayName
-            GroupAssignment = $Name
-            GroupID         = $GroupID
-            Intent          = $assign.Intent
-            AppID           = $app.id
-            AppAssignmentId = $assign.Id
+                [PSCustomObject]@{
+                    AppName         = $app.displayName
+                    GroupAssignment = $Name
+                    GroupID         = $GroupID
+                    Intent          = $assign.Intent
+                    AppID           = $app.id
+                    AppAssignmentId = $assign.Id
             
+                }
+            } 
         }
-    } 
+    }
+    END {
+        Write-Output $obj
+    }
 }
-
 $obj
 #Remove any available assignments to Test - UdehNdukwe
 <#Steps:
@@ -38,15 +51,15 @@ $Array = @(
     "Crowdstrike (with post-script)"
 )
 
-foreach ($app in $changeList) {
-    if ($app.AppName -in $Array) {
-        Remove-MgDeviceAppManagementMobileAppAssignment -MobileAppId $app.AppID -MobileAppAssignmentId $app.AppAssignmentId
-    }
+foreach ($app in $obj) {
+    #if ($app.AppName -in $Array) {
+    Remove-MgDeviceAppManagementMobileAppAssignment -MobileAppId $app.AppID -MobileAppAssignmentId $app.AppAssignmentId
+    #}
 }
 
 #Remove any required assignments to "Test - Mac Devices"
 
-$changeList = $obj | Where GroupAssignment -eq "Test - Mac Devices"
+$changeList = $obj | Where-Object GroupAssignment -eq "Test - Mac Devices"
 
 $array = @(
     "Crowdstrike (with post-script)",
@@ -101,8 +114,8 @@ $macOSCustomPolicy = $result | select -ExpandProperty Value | Where DisplayName 
 $macOSSettingsCatalog = $result2 | select -ExpandProperty Value | Where Name -like "*macOS*"
 $macOSDeviceFeatureSettings = $result3 | select -ExpandProperty Value | Where displayName -like "*macOS*"
 
-$macOSCustomPolicy | Select displayName
-$macOSSettingsCatalog | Select name
+$macOSCustomPolicy | Select-Object displayName
+$macOSSettingsCatalog | Select-Object name
 
 $list = @()
 $list += foreach ($policy in $macOSCustomPolicy) {

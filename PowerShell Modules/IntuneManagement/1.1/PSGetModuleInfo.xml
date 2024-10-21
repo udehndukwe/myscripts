@@ -6,16 +6,16 @@
       <T>System.Object</T>
     </TN>
     <MS>
-      <S N="Name">ServerPrepTools</S>
-      <Version N="Version">3.0</Version>
+      <S N="Name">IntuneManagement</S>
+      <Version N="Version">1.1</Version>
       <S N="Type">Module</S>
-      <S N="Description">Prep Tools for Windows Server</S>
-      <S N="Author">UdehNdukwe</S>
+      <S N="Description">Module that simplifies Intune management commands of devices.`nSync, Restart, and Wipe actions currently supported. More will be added in future releases of this module</S>
+      <S N="Author">udeh.ndukwe</S>
       <S N="CompanyName">keyofmiracles</S>
-      <S N="Copyright">(c) UdehNdukwe. All rights reserved.</S>
-      <DT N="PublishedDate">2024-01-31T04:27:41-05:00</DT>
+      <S N="Copyright">(c) udeh.ndukwe. All rights reserved.</S>
+      <DT N="PublishedDate">2024-06-16T21:57:15-04:00</DT>
       <Obj N="InstalledDate" RefId="1">
-        <DT>2024-02-06T00:49:05.293648-05:00</DT>
+        <DT>2024-06-18T10:46:52.866683-04:00</DT>
         <MS>
           <Obj N="DisplayHint" RefId="2">
             <TN RefId="1">
@@ -40,6 +40,7 @@
           <T>System.Object</T>
         </TN>
         <LST>
+          <S>Intune</S>
           <S>PSModule</S>
         </LST>
       </Obj>
@@ -50,51 +51,45 @@
         </TN>
         <DCT>
           <En>
-            <S N="Key">Function</S>
+            <S N="Key">DscResource</S>
             <Obj N="Value" RefId="5">
-              <TNRef RefId="2" />
-              <LST>
-                <S>Set-InitialInfo</S>
-                <S>Enable-RemotingSettings</S>
-                <S>Enable-AutoUpdates</S>
-                <S>Install-DomainTools</S>
-                <S>New-DomainController</S>
-                <S>Add-NetworkSettings</S>
-              </LST>
-            </Obj>
-          </En>
-          <En>
-            <S N="Key">RoleCapability</S>
-            <Obj N="Value" RefId="6">
               <TNRef RefId="2" />
               <LST />
             </Obj>
           </En>
           <En>
+            <S N="Key">Workflow</S>
+            <Ref N="Value" RefId="5" />
+          </En>
+          <En>
+            <S N="Key">Cmdlet</S>
+            <Ref N="Value" RefId="5" />
+          </En>
+          <En>
+            <S N="Key">RoleCapability</S>
+            <Ref N="Value" RefId="5" />
+          </En>
+          <En>
             <S N="Key">Command</S>
-            <Obj N="Value" RefId="7">
+            <Obj N="Value" RefId="6">
               <TNRef RefId="2" />
               <LST>
-                <S>Set-InitialInfo</S>
-                <S>Enable-RemotingSettings</S>
-                <S>Enable-AutoUpdates</S>
-                <S>Install-DomainTools</S>
-                <S>New-DomainController</S>
-                <S>Add-NetworkSettings</S>
+                <S>Restart-IntuneDevice</S>
+                <S>Sync-IntuneDevice</S>
+                <S>Clear-IntuneDevice</S>
               </LST>
             </Obj>
           </En>
           <En>
-            <S N="Key">Workflow</S>
-            <Ref N="Value" RefId="6" />
-          </En>
-          <En>
-            <S N="Key">Cmdlet</S>
-            <Ref N="Value" RefId="6" />
-          </En>
-          <En>
-            <S N="Key">DscResource</S>
-            <Ref N="Value" RefId="6" />
+            <S N="Key">Function</S>
+            <Obj N="Value" RefId="7">
+              <TNRef RefId="2" />
+              <LST>
+                <S>Restart-IntuneDevice</S>
+                <S>Sync-IntuneDevice</S>
+                <S>Clear-IntuneDevice</S>
+              </LST>
+            </Obj>
           </En>
         </DCT>
       </Obj>
@@ -113,30 +108,31 @@
           <T>System.Object</T>
         </TN>
         <MS>
-          <S N="copyright">(c) UdehNdukwe. All rights reserved.</S>
-          <S N="description">Prep Tools for Windows Server</S>
+          <S N="copyright">(c) udeh.ndukwe. All rights reserved.</S>
+          <S N="description">Module that simplifies Intune management commands of devices.`nSync, Restart, and Wipe actions currently supported. More will be added in future releases of this module</S>
           <S N="requireLicenseAcceptance">False</S>
           <S N="isLatestVersion">True</S>
           <S N="isAbsoluteLatestVersion">True</S>
-          <S N="versionDownloadCount">4</S>
-          <S N="downloadCount">10</S>
-          <S N="packageSize">5121</S>
-          <S N="published">1/31/2024 4:27:41 AM -05:00</S>
-          <S N="created">1/31/2024 4:27:41 AM -05:00</S>
-          <S N="lastUpdated">2/5/2024 9:58:55 AM -05:00</S>
-          <S N="tags">PSModule PSFunction_Set-InitialInfo PSCommand_Set-InitialInfo PSFunction_Enable-RemotingSettings PSCommand_Enable-RemotingSettings PSFunction_Enable-AutoUpdates PSCommand_Enable-AutoUpdates PSFunction_Install-DomainTools PSCommand_Install-DomainTools PSFunction_New-DomainController PSCommand_New-DomainController PSFunction_Add-NetworkSettings PSCommand_Add-NetworkSettings PSIncludes_Function</S>
+          <S N="versionDownloadCount">5</S>
+          <S N="downloadCount">7</S>
+          <S N="packageSize">4641</S>
+          <S N="published">6/16/2024 9:57:15 PM -04:00</S>
+          <S N="created">6/16/2024 9:57:15 PM -04:00</S>
+          <S N="lastUpdated">6/18/2024 11:11:45 AM -04:00</S>
+          <S N="tags">Intune PSModule</S>
           <S N="developmentDependency">False</S>
-          <S N="updated">2024-02-05T09:58:55Z</S>
-          <S N="NormalizedVersion">3.0.0</S>
-          <S N="Authors">UdehNdukwe</S>
+          <S N="updated">2024-06-18T11:11:45Z</S>
+          <S N="NormalizedVersion">1.1.0</S>
+          <S N="Authors">udeh.ndukwe</S>
           <S N="IsPrerelease">false</S>
           <S N="ItemType">Module</S>
-          <S N="FileList">ServerPrepTools.nuspec|ServerPrepTools.psd1|ServerPrepTools.psm1</S>
-          <S N="GUID">554f3b8d-9296-4fb7-a366-dfd3cb9340f0</S>
+          <S N="FileList">IntuneManagement.nuspec|IntuneManagement.psd1|IntuneManagement.psm1</S>
+          <S N="Functions">Restart-IntuneDevice Sync-IntuneDevice Clear-IntuneDevice</S>
+          <S N="GUID">66de4a44-7a2f-4f8f-8d71-3c299a91003b</S>
           <S N="CompanyName">Unknown</S>
         </MS>
       </Obj>
-      <S N="InstalledLocation">C:\Users\UdehNdukwe\OneDrive - corpreliablerepairs\Documents\PowerShell\Modules\ServerPrepTools\3.0</S>
+      <S N="InstalledLocation">C:\Users\undukwe\OneDrive - STERIS Corporation\Documents\PowerShell\Modules\IntuneManagement\1.1</S>
     </MS>
   </Obj>
 </Objs>
