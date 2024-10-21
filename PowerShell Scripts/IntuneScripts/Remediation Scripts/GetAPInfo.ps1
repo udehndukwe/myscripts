@@ -1,4 +1,13 @@
-#Run AP Script
+<#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Takes code from the Get-WindowsAutopilotInfo.ps1 script to create a script that can either be deployed as a remediation in Intune, or packaged as a Win32 App to automate the process that the Get-WindowsAutopilotInfo script runs with the -Online parameter.
+
+Uses an app registration in Entra to connect to Graph and upload Autopilot device information. Configure your app and retrieve your Tenant ID, App/Client ID, and your App Secret before attempting to run this script.
+
+
+Original script: https://www.powershellgallery.com/packages/Get-WindowsAutopilotInfo/3.8
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#>
 
 Start-Transcript C:\GetAPInfo.log
 
@@ -14,6 +23,7 @@ else { Write-Host "NuGet Module Found" }
 
 $AppId = 
 $TenantID =
+$AppSecret =
 
 # Get WindowsAutopilotIntune module (and dependencies)
 $module = Import-Module WindowsAutopilotIntune -PassThru -ErrorAction Ignore
