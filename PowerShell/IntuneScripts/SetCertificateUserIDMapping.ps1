@@ -7,13 +7,19 @@ function Set-CertificateUserIDMapping {
         [string]$UserID
     )
 
+    $module = Get-Module Microsoft.Graph.Authentication
+
     if (-not $module) {
         Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
         Connect-MgGraph
     }
     else {
-        Connect-MgGraph
+        $context = Get-MgContext
+        if (-not $context) {
+            Connect-MgGraph
+        }
     }
+  
     $certificates = Import-CSV $path
 
     $Issuer = "CN=ad-CA01-CA,DC=ad,DC=relrepairs,DC=com"
@@ -27,25 +33,6 @@ function Set-CertificateUserIDMapping {
         Invoke-MGGraphRequest -Method patch -Uri 'https://graph.microsoft.com/v1.0/users/$UserID/?`$select=authorizationinfo' -OutputType PSObject -Headers @{'ConsistencyLevel' = 'eventual' } -Body $params
     }
 
-}
-
-
-function Get-EntraAuthorizationInfo {
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [string]$EntraUser
-    )
-    if (-not $module) {
-        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
-        Connect-MgGraph
-    }
-    else {
-        Connect-MgGraph
-    }
-
-
-    Invoke-MGGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/users/$EntraUser/?`$select=authorizationinfo" | Select -expand authorizationInfo | Select -expand certificateUserIds
 }
 
 function f1 {
@@ -64,7 +51,10 @@ function f1 {
         Connect-MgGraph
     }
     else {
-        Connect-MgGraph
+        $context = Get-MgContext
+        if (-not $context) {
+            Connect-MgGraph
+        }
     }
 
     #$ID = Invoke-MgGraphRequest -uri "https://graph.microsoft.com/v1.0/users/$UserID" | Select -expand Id
@@ -122,13 +112,19 @@ function Get-EntraAuthorizationInfo {
         [string]$EntraUser
     )
 
+    $module = Get-Module Microsoft.Graph.Authentication
+
     if (-not $module) {
         Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
         Connect-MgGraph
     }
     else {
-        Connect-MgGraph
+        $context = Get-MgContext
+        if (-not $context) {
+            Connect-MgGraph
+        }
     }
+
     Invoke-MGGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/users/$EntraUser/?`$select=authorizationinfo" | Select -expand authorizationInfo | Select -expand certificateUserIds
 }
 
