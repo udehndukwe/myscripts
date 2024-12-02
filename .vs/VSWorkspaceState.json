@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\PowerShell",
+    "\\PowerShell Modules",
+    "\\PowerShell\\AD",
+    "\\PowerShell\\IntuneScripts"
+  ],
+  "SelectedNode": "\\PowerShell\\IntuneScripts\\Get-IntuneAppReport.ps1",
+  "PreviewInSolutionExplorer": false
+}
