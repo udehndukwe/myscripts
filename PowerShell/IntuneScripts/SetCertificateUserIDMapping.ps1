@@ -1,17 +1,19 @@
-$URI = "https://graph.microsoft.com/v1.0/users?`$select=authorizationinfo,displayName,id,userPrincipalName"
-
-Invoke-MgGraphRequest -method GET -Uri $URI | Select -expand Value 
-
-
 # Set Value
 
 function Set-CertificateUserIDMapping {
-    [CmdletBinding()]
     param (
+        [CmdletBinding()]
         [Parameter()]
         [string]$UserID
     )
 
+    if (-not $module) {
+        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+        Connect-MgGraph
+    }
+    else {
+        Connect-MgGraph
+    }
     $certificates = Import-CSV $path
 
     $Issuer = "CN=ad-CA01-CA,DC=ad,DC=relrepairs,DC=com"
@@ -34,6 +36,15 @@ function Get-EntraAuthorizationInfo {
         [Parameter()]
         [string]$EntraUser
     )
+    if (-not $module) {
+        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+        Connect-MgGraph
+    }
+    else {
+        Connect-MgGraph
+    }
+
+
     Invoke-MGGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/users/$EntraUser/?`$select=authorizationinfo" | Select -expand authorizationInfo | Select -expand certificateUserIds
 }
 
@@ -45,6 +56,17 @@ function f1 {
         [switch]$Serial,
         [switch]$SKI
     )
+
+    $module = Get-Module Microsoft.Graph.Authentication
+
+    if (-not $module) {
+        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+        Connect-MgGraph
+    }
+    else {
+        Connect-MgGraph
+    }
+
     #$ID = Invoke-MgGraphRequest -uri "https://graph.microsoft.com/v1.0/users/$UserID" | Select -expand Id
     if ($Serial) {
         $certificates = Import-CSV $path
@@ -99,6 +121,14 @@ function Get-EntraAuthorizationInfo {
         [Parameter()]
         [string]$EntraUser
     )
+
+    if (-not $module) {
+        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+        Connect-MgGraph
+    }
+    else {
+        Connect-MgGraph
+    }
     Invoke-MGGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/users/$EntraUser/?`$select=authorizationinfo" | Select -expand authorizationInfo | Select -expand certificateUserIds
 }
 
