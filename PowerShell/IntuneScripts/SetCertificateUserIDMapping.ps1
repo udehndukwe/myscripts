@@ -83,8 +83,8 @@ function f1 {
     }
 
     if ($SKI) {
-        $UserName = whoami -upn
-        $mycert = ls cert:\CurrentUser\My\ | Where Subject -like "*E=$username*"
+        
+        $mycert = ls cert:\CurrentUser\My\ | Where Subject -like "*E=$UserID*"
         $SubjectKeyID = $mycert.Extensions | Where { $_.Oid.FriendlyName -eq "Subject Key Identifier" }  | Select -expand SubjectKeyIdentifier    
 
         $params = @{
