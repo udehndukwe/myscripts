@@ -28,10 +28,12 @@ function Clear-IntuneDevice {
         }
 
         if ($DeviceName) {
-            $managedDevice = Get-MgDeviceManagementManagedDevice -Filter "DeviceName eq '$DeviceName'"
+            $URI = "https://graph.microsoft.com/v1.0/deviceManagement/managedDevices?`$filter=deviceName eq '$DeviceName'"
+            $managedDevice = Invoke-MgGraphRequest -Method GET -Uri $URI | Select -expand Value 
         }
         elseif ($SerialNumber) {
-            $managedDevice = Get-MgDeviceManagementManagedDevice -Filter "SerialNumber eq '$SerialNumber'"
+            $URI = "https://graph.microsoft.com/v1.0/deviceManagement/managedDevices?`$filter=deviceName eq '$SerialNumber'"
+            $managedDevice = Invoke-MgGraphRequest -Method GET -Uri $URI | Select -expand Value 
         }
         $params = @{
             keepEnrollmentData = $false
@@ -43,18 +45,12 @@ function Clear-IntuneDevice {
         
         foreach ($device in $managedDevice) {
             $Name = $device.DeviceNAme
+            $URI = "https://graph.microsoft.com/v1.0/deviceManagement/managedDevices/$($device.id)/wipe" 
             Write-Verbose "Sending Wipe command..." -Verbose
-            Clear-MgDeviceManagementManagedDevice -ManagedDeviceId $device.id -BodyParameter $params -ErrorAction Stop -Confirm:$true
+            Invoke-MgGraphRequest -Method POST -Uri $URI -ErrorAction Stop -Confirm:$true
             Write-Verbose "Wipe initiated for $Name." -Verbose
         }
     }
-}
-
-
-$files = ls
-
-foreach ($file in $files) {
-    Rename-item -Path $file.FullName -NewName ($file.BaseName + ".ps1")
 }
 function Export-M365LicensedUser {
     [CmdletBinding()]
@@ -114,7 +110,13 @@ function Export-M365LicensedUser {
         } 
     }
 
-    $allusers = Get-MgUser -All -Property Id, DisplayName, UserPrincipalName, AssignedLicenses
+    $allusers = @()
+    $uri = "https://graph.microsoft.com/v1.0/users?`$select=id,displayName,userPrincipalName,assignedLicenses&`$top=999"
+    do {
+        $response = Invoke-MgGraphRequest -Method GET -Uri $uri
+        $allusers += $response.value
+        $uri = $response.'@odata.nextLink'
+    } while ($uri)
 
     $License = Get-MgSubscribedSku | Where-Object SkuPartNumber -eq $LicenseSkuPartNumber
     $SkuID = $license.skuid
@@ -245,10 +247,9 @@ function Get-AssignedEntraDevice {
 function Get-EntraDupe {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias('AzureActiveDirectoryDeviceID')]
-        [string[]]$EntraDeviceID,
-        [string[]]$hash
+        [string[]]$EntraDeviceID
     )
 
     BEGIN {
@@ -567,7 +568,7 @@ This function requires the Microsoft Graph PowerShell SDK to be installed and au
 
 #>
 function New-ExtensionAttribute {
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     param (
         [Parameter()]
         [string]$DeviceID,
@@ -623,7 +624,7 @@ function New-ExtensionAttribute {
     }
 }
 function New-IntuneAppAssignment {
-    [CmdletBinding(SupportsShouldProcess=$true)]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter()]
         [ValidateSet("All users", "All devices")]
@@ -665,7 +666,7 @@ function New-IntuneAppAssignment {
     }
 }
 function Remove-Win32Hash {
-    [CmdletBinding(SupportsShouldProcess=$true)]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(Mandatory = $true)]
         [string]
