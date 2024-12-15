@@ -12,6 +12,8 @@
     }
 
     PROCESS {
+        Stop-VM -VM $VM -Force -ErrorAction Stop
+
         try {
             Remove-VM -VM $VM -ErrorAction Stop
         }
