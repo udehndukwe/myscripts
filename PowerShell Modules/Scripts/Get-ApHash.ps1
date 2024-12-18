@@ -1,3 +1,20 @@
+<#
+.SYNOPSIS
+    Retrieves Autopilot hash information for devices based on their serial numbers.
+
+.DESCRIPTION
+    This function fetches Autopilot hash information for devices using their serial numbers.
+
+.PARAMETER SerialNumber
+    The serial numbers of the devices.
+
+.EXAMPLE
+    Get-APHash -SerialNumber "12345"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Get-APHash {
     [CmdletBinding()]
     param (

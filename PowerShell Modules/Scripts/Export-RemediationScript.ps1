@@ -1,3 +1,20 @@
+<#
+.SYNOPSIS
+    Exports remediation and detection scripts from Intune.
+
+.DESCRIPTION
+    This function exports remediation and detection scripts from Intune using their script IDs.
+
+.PARAMETER scriptID
+    The IDs of the scripts to export.
+
+.EXAMPLE
+    Export-RemediationScript -scriptID "script1", "script2"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: 10/10/2023
+#>
 function Export-RemediationScript {
     [CmdletBinding()]
     param (
@@ -26,7 +43,7 @@ function Export-RemediationScript {
                 $path = Get-Item $env:USERPROFILE\$foldername
             }
             $detectionFilename = $value.displayName.replace(" ", "").Replace("\", "").Replace("/", "") + "Remediation.ps1"
-            $remediationFileName = $value.displayName.replace(" ", "").Replace("\", "").Replace("/", "") + "_Detection.ps1"
+            $remediationFileName = $value.displayName.replace(" ", "").Replace("/", "") + "_Detection.ps1"
             ##Export filename
             $decodedDetection | Out-File -FilePath "$env:USERPROFILE\$foldername\$detectionFilename"
             Write-Verbose -Message "$detectionFilename has been exported successfully to: $($path)"

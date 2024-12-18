@@ -1,3 +1,30 @@
+<#
+.SYNOPSIS
+    Retrieves the status report of an Intune application.
+
+.DESCRIPTION
+    This function fetches the status report of an Intune application using its AppID. 
+    It can export the report to an Excel file and/or display it in the console.
+
+.PARAMETER AppID
+    The ID of the Intune application.
+
+.PARAMETER Export
+    Switch to export the report to an Excel file.
+
+.PARAMETER Display
+    Switch to display the report in the console.
+
+.PARAMETER JSONPath
+    The path to store the temporary JSON file. Defaults to "$env:USERPROFILE\AppJSONs".
+
+.EXAMPLE
+    Get-IntuneAppStatusReport -AppID "12345" -Export -Display
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Get-IntuneAppStatusReport {
     [CmdletBinding()]
     param (

@@ -1,3 +1,23 @@
+<#
+.SYNOPSIS
+    Identifies duplicate Entra devices based on their IDs.
+
+.DESCRIPTION
+    This function checks for duplicate Entra devices using their IDs and returns the duplicate devices.
+
+.PARAMETER EntraDeviceID
+    The IDs of the Entra devices to check for duplicates.
+
+.PARAMETER hash
+    Additional hash information for the devices.
+
+.EXAMPLE
+    Get-EntraDupe -EntraDeviceID "device1", "device2"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Get-EntraDupe {
     [CmdletBinding()]
     param (

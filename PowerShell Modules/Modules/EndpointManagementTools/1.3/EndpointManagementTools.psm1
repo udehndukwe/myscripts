@@ -1,3 +1,23 @@
+<#
+.SYNOPSIS
+    Clears Autopilot hashes for devices based on their IDs or serial numbers.
+
+.DESCRIPTION
+    This function clears Autopilot hashes for devices using their IDs or serial numbers.
+
+.PARAMETER Id
+    The ID of the device to clear the Autopilot hash for.
+
+.PARAMETER SerialNumber
+    The serial number of the device to clear the Autopilot hash for.
+
+.EXAMPLE
+    Clear-ApHash -Id "12345"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Clear-ApHash {
     [CmdletBinding(
         SupportsShouldProcess = $true,
@@ -5,14 +25,48 @@ function Clear-ApHash {
     )]
     param (
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$Id
+        [string]$Id,
+        [string]$SerialNumber
     )
+    begin {
+        if ($SerialNumber) {
+            $hashes = Get-MgDeviceManagementWindowsAutopilotDeviceIdentity -All
+        }
+    }
     process {
-        if ($PSCmdlet.ShouldProcess("Device with ID $Id", "Remove")) {
-            Remove-MgDeviceManagementWindowsAutopilotDeviceIdentity -WindowsAutopilotDeviceIdentityId $Id -WhatIf:$WhatIfPreference -Confirm:$ConfirmPreference
+        if ($SerialNumber) {
+            $Id = $hashes | Where-Object { $_.serialNumber -eq $SerialNumber } | Select-Object -ExpandProperty id
+            if ($PSCmdlet.ShouldProcess("Device with ID $Id", "Remove")) {
+                Remove-MgDeviceManagementWindowsAutopilotDeviceIdentity -WindowsAutopilotDeviceIdentityId $Id
+            }
+        }
+        else {
+            if ($PSCmdlet.ShouldProcess("Device with ID $Id", "Remove")) {
+                Remove-MgDeviceManagementWindowsAutopilotDeviceIdentity -WindowsAutopilotDeviceIdentityId $Id
+            }
         }
     }
 }
+<#
+.SYNOPSIS
+    Sends a wipe command to Intune devices based on their names or serial numbers.
+
+.DESCRIPTION
+    This function sends a wipe command to Intune devices using their names or serial numbers.
+
+.PARAMETER DeviceName
+    The names of the devices to wipe.
+
+.PARAMETER SerialNumber
+    The serial numbers of the devices to wipe.
+
+.EXAMPLE
+    Clear-IntuneDevice -DeviceName "Device1"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Clear-IntuneDevice {
     [CmdletBinding()]
     param (
@@ -28,12 +82,10 @@ function Clear-IntuneDevice {
         }
 
         if ($DeviceName) {
-            $URI = "https://graph.microsoft.com/v1.0/deviceManagement/managedDevices?`$filter=deviceName eq '$DeviceName'"
-            $managedDevice = Invoke-MgGraphRequest -Method GET -Uri $URI | Select -expand Value 
+            $managedDevice = Get-MgDeviceManagementManagedDevice -Filter "DeviceName eq '$DeviceName'"
         }
         elseif ($SerialNumber) {
-            $URI = "https://graph.microsoft.com/v1.0/deviceManagement/managedDevices?`$filter=deviceName eq '$SerialNumber'"
-            $managedDevice = Invoke-MgGraphRequest -Method GET -Uri $URI | Select -expand Value 
+            $managedDevice = Get-MgDeviceManagementManagedDevice -Filter "SerialNumber eq '$SerialNumber'"
         }
         $params = @{
             keepEnrollmentData = $false
@@ -45,13 +97,49 @@ function Clear-IntuneDevice {
         
         foreach ($device in $managedDevice) {
             $Name = $device.DeviceNAme
-            $URI = "https://graph.microsoft.com/v1.0/deviceManagement/managedDevices/$($device.id)/wipe" 
             Write-Verbose "Sending Wipe command..." -Verbose
-            Invoke-MgGraphRequest -Method POST -Uri $URI -ErrorAction Stop -Confirm:$true
+            Clear-MgDeviceManagementManagedDevice -ManagedDeviceId $device.id -BodyParameter $params -ErrorAction Stop -Confirm:$true
             Write-Verbose "Wipe initiated for $Name." -Verbose
         }
     }
 }
+
+<#
+.SYNOPSIS
+    Renames all files in the current directory to have a .ps1 extension.
+
+.DESCRIPTION
+    This script renames all files in the current directory to have a .ps1 extension.
+
+.EXAMPLE
+    .\Clear-IntuneDevice.ps1
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
+$files = ls
+
+foreach ($file in $files) {
+    Rename-item -Path $file.FullName -NewName ($file.BaseName + ".ps1")
+}
+<#
+.SYNOPSIS
+    Exports users with specific Microsoft 365 licenses.
+
+.DESCRIPTION
+    This function exports users who have specific Microsoft 365 licenses based on the provided LicenseSkuPartNumber.
+
+.PARAMETER LicenseSkuPartNumber
+    The SKU part number of the license to filter users by.
+
+.EXAMPLE
+    Export-M365LicensedUser -LicenseSkuPartNumber "ENTERPRISEPACK"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Export-M365LicensedUser {
     [CmdletBinding()]
     param (
@@ -110,13 +198,7 @@ function Export-M365LicensedUser {
         } 
     }
 
-    $allusers = @()
-    $uri = "https://graph.microsoft.com/v1.0/users?`$select=id,displayName,userPrincipalName,assignedLicenses&`$top=999"
-    do {
-        $response = Invoke-MgGraphRequest -Method GET -Uri $uri
-        $allusers += $response.value
-        $uri = $response.'@odata.nextLink'
-    } while ($uri)
+    $allusers = Get-MgUser -All -Property Id, DisplayName, UserPrincipalName, AssignedLicenses
 
     $License = Get-MgSubscribedSku | Where-Object SkuPartNumber -eq $LicenseSkuPartNumber
     $SkuID = $license.skuid
@@ -132,6 +214,23 @@ function Export-M365LicensedUser {
     }
 
 }
+<#
+.SYNOPSIS
+    Exports remediation and detection scripts from Intune.
+
+.DESCRIPTION
+    This function exports remediation and detection scripts from Intune using their script IDs.
+
+.PARAMETER scriptID
+    The IDs of the scripts to export.
+
+.EXAMPLE
+    Export-RemediationScript -scriptID "script1", "script2"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: 10/10/2023
+#>
 function Export-RemediationScript {
     [CmdletBinding()]
     param (
@@ -160,7 +259,7 @@ function Export-RemediationScript {
                 $path = Get-Item $env:USERPROFILE\$foldername
             }
             $detectionFilename = $value.displayName.replace(" ", "").Replace("\", "").Replace("/", "") + "Remediation.ps1"
-            $remediationFileName = $value.displayName.replace(" ", "").Replace("\", "").Replace("/", "") + "_Detection.ps1"
+            $remediationFileName = $value.displayName.replace(" ", "").Replace("/", "") + "_Detection.ps1"
             ##Export filename
             $decodedDetection | Out-File -FilePath "$env:USERPROFILE\$foldername\$detectionFilename"
             Write-Verbose -Message "$detectionFilename has been exported successfully to: $($path)"
@@ -172,6 +271,23 @@ function Export-RemediationScript {
     }
 
 }
+<#
+.SYNOPSIS
+    Retrieves Autopilot hash information for devices based on their serial numbers.
+
+.DESCRIPTION
+    This function fetches Autopilot hash information for devices using their serial numbers.
+
+.PARAMETER SerialNumber
+    The serial numbers of the devices.
+
+.EXAMPLE
+    Get-APHash -SerialNumber "12345"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Get-APHash {
     [CmdletBinding()]
     param (
@@ -204,6 +320,33 @@ function Get-APHash {
         }
     }
 }
+<#
+.SYNOPSIS
+    Retrieves the assigned Entra device and its registered owner based on the provided serial number or device name.
+
+.DESCRIPTION
+    The Get-AssignedEntraDevice function queries the Microsoft Graph API to find a device by its serial number or device name.
+    If a device is found, it retrieves the Azure AD device ID and then fetches the registered owner of the device.
+
+.PARAMETER SerialNumber
+    The serial number of the device to search for.
+
+.PARAMETER DeviceName
+    The name of the device to search for.
+
+.EXAMPLE
+    Get-AssignedEntraDevice -SerialNumber "1234567890"
+    Retrieves the device and its registered owner with the specified serial number.
+
+.EXAMPLE
+    Get-AssignedEntraDevice -DeviceName "MyDevice"
+    Retrieves the device and its registered owner with the specified device name.
+
+.NOTES
+    This function requires the Microsoft Graph PowerShell SDK to be installed and authenticated.
+    Ensure you have the necessary permissions to access device and user information in Microsoft Graph.
+
+#>
 function Get-AssignedEntraDevice {
     [CmdletBinding()]
     param (
@@ -212,20 +355,6 @@ function Get-AssignedEntraDevice {
         [string]$DeviceName
     )
 
-    if ($DeviceName) {
-        $device = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/devices?`$filter=displayName eq '$DeviceName'"
-        if ($device.value.Count -eq 0) {
-            Write-Error "Device not found"
-            return
-        }
-        $deviceId = $device.value[0].id
-        $mgUser = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/devices/$deviceId/registeredOwners"
-        if ($mgUser.value.Count -eq 0) {
-            Write-Error "No Registered User"
-            return
-        }
-        Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/users/$($mgUser.value[0].id)"
-    }
 
     if ($SerialNumber) {
         $device = Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/deviceManagement/managedDevices?`$filter=serialNumber eq '$SerialNumber'"
@@ -244,12 +373,33 @@ function Get-AssignedEntraDevice {
         Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/users/$($mgUser.value[0].id)"
     }
 }
+<#
+.SYNOPSIS
+    Identifies duplicate Entra devices based on their IDs.
+
+.DESCRIPTION
+    This function checks for duplicate Entra devices using their IDs and returns the duplicate devices.
+
+.PARAMETER EntraDeviceID
+    The IDs of the Entra devices to check for duplicates.
+
+.PARAMETER hash
+    Additional hash information for the devices.
+
+.EXAMPLE
+    Get-EntraDupe -EntraDeviceID "device1", "device2"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Get-EntraDupe {
     [CmdletBinding()]
     param (
-        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [Alias('AzureActiveDirectoryDeviceID')]
-        [string[]]$EntraDeviceID
+        [string[]]$EntraDeviceID,
+        [string[]]$hash
     )
 
     BEGIN {
@@ -297,6 +447,27 @@ function Get-EntraDupe {
         }
     }
 }
+<#
+.SYNOPSIS
+    Retrieves Intune applications based on the specified platform.
+
+.DESCRIPTION
+    This function fetches Intune applications for a specified platform (macOS, Windows, Android, iOS).
+    It can also retrieve all applications if the -All switch is used.
+
+.PARAMETER Platform
+    The platform of the applications to retrieve. Valid values are "macOS", "Windows", "Android", "iOS".
+
+.PARAMETER All
+    Switch to retrieve all applications regardless of platform.
+
+.EXAMPLE
+    Get-IntuneApp -Platform "Windows"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Get-IntuneApp {
     [CmdletBinding()]
     param (
@@ -363,6 +534,33 @@ function Get-IntuneApp {
         
     }
 }
+<#
+.SYNOPSIS
+    Retrieves the status report of an Intune application.
+
+.DESCRIPTION
+    This function fetches the status report of an Intune application using its AppID. 
+    It can export the report to an Excel file and/or display it in the console.
+
+.PARAMETER AppID
+    The ID of the Intune application.
+
+.PARAMETER Export
+    Switch to export the report to an Excel file.
+
+.PARAMETER Display
+    Switch to display the report in the console.
+
+.PARAMETER JSONPath
+    The path to store the temporary JSON file. Defaults to "$env:USERPROFILE\AppJSONs".
+
+.EXAMPLE
+    Get-IntuneAppStatusReport -AppID "12345" -Export -Display
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Get-IntuneAppStatusReport {
     [CmdletBinding()]
     param (
@@ -568,7 +766,7 @@ This function requires the Microsoft Graph PowerShell SDK to be installed and au
 
 #>
 function New-ExtensionAttribute {
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
     param (
         [Parameter()]
         [string]$DeviceID,
@@ -624,7 +822,7 @@ function New-ExtensionAttribute {
     }
 }
 function New-IntuneAppAssignment {
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param (
         [Parameter()]
         [ValidateSet("All users", "All devices")]
@@ -666,7 +864,7 @@ function New-IntuneAppAssignment {
     }
 }
 function Remove-Win32Hash {
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param (
         [Parameter(Mandatory = $true)]
         [string]

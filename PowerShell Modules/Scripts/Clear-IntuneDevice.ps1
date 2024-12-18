@@ -1,3 +1,23 @@
+<#
+.SYNOPSIS
+    Sends a wipe command to Intune devices based on their names or serial numbers.
+
+.DESCRIPTION
+    This function sends a wipe command to Intune devices using their names or serial numbers.
+
+.PARAMETER DeviceName
+    The names of the devices to wipe.
+
+.PARAMETER SerialNumber
+    The serial numbers of the devices to wipe.
+
+.EXAMPLE
+    Clear-IntuneDevice -DeviceName "Device1"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Clear-IntuneDevice {
     [CmdletBinding()]
     param (
@@ -35,7 +55,20 @@ function Clear-IntuneDevice {
     }
 }
 
+<#
+.SYNOPSIS
+    Renames all files in the current directory to have a .ps1 extension.
 
+.DESCRIPTION
+    This script renames all files in the current directory to have a .ps1 extension.
+
+.EXAMPLE
+    .\Clear-IntuneDevice.ps1
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 $files = ls
 
 foreach ($file in $files) {

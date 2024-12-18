@@ -1,3 +1,24 @@
+<#
+.SYNOPSIS
+    Retrieves Intune applications based on the specified platform.
+
+.DESCRIPTION
+    This function fetches Intune applications for a specified platform (macOS, Windows, Android, iOS).
+    It can also retrieve all applications if the -All switch is used.
+
+.PARAMETER Platform
+    The platform of the applications to retrieve. Valid values are "macOS", "Windows", "Android", "iOS".
+
+.PARAMETER All
+    Switch to retrieve all applications regardless of platform.
+
+.EXAMPLE
+    Get-IntuneApp -Platform "Windows"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Get-IntuneApp {
     [CmdletBinding()]
     param (

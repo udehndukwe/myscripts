@@ -1,3 +1,20 @@
+<#
+.SYNOPSIS
+    Exports users with specific Microsoft 365 licenses.
+
+.DESCRIPTION
+    This function exports users who have specific Microsoft 365 licenses based on the provided LicenseSkuPartNumber.
+
+.PARAMETER LicenseSkuPartNumber
+    The SKU part number of the license to filter users by.
+
+.EXAMPLE
+    Export-M365LicensedUser -LicenseSkuPartNumber "ENTERPRISEPACK"
+
+.NOTES
+    Author: Udeh Ndukwe
+    Date: Today's Date
+#>
 function Export-M365LicensedUser {
     [CmdletBinding()]
     param (
