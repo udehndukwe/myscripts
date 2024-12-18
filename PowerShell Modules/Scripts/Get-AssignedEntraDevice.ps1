@@ -24,6 +24,8 @@
     This function requires the Microsoft Graph PowerShell SDK to be installed and authenticated.
     Ensure you have the necessary permissions to access device and user information in Microsoft Graph.
 
+    Author: Udeh Ndukwe
+    Date: 12/18/2024
 #>
 function Get-AssignedEntraDevice {
     [CmdletBinding()]

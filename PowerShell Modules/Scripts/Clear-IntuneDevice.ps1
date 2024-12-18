@@ -16,7 +16,7 @@
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 function Clear-IntuneDevice {
     [CmdletBinding()]
@@ -67,7 +67,7 @@ function Clear-IntuneDevice {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 $files = ls
 
