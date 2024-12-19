@@ -65,7 +65,7 @@ function Clear-ApHash {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 function Clear-IntuneDevice {
     [CmdletBinding()]
@@ -116,7 +116,7 @@ function Clear-IntuneDevice {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 $files = ls
 
@@ -138,7 +138,7 @@ foreach ($file in $files) {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 function Export-M365LicensedUser {
     [CmdletBinding()]
@@ -229,7 +229,7 @@ function Export-M365LicensedUser {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: 10/10/2023
+    Date: 12/18/2024
 #>
 function Export-RemediationScript {
     [CmdletBinding()]
@@ -286,7 +286,7 @@ function Export-RemediationScript {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 function Get-APHash {
     [CmdletBinding()]
@@ -346,6 +346,8 @@ function Get-APHash {
     This function requires the Microsoft Graph PowerShell SDK to be installed and authenticated.
     Ensure you have the necessary permissions to access device and user information in Microsoft Graph.
 
+    Author: Udeh Ndukwe
+    Date: 12/18/2024
 #>
 function Get-AssignedEntraDevice {
     [CmdletBinding()]
@@ -391,7 +393,7 @@ function Get-AssignedEntraDevice {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 function Get-EntraDupe {
     [CmdletBinding()]
@@ -466,7 +468,7 @@ function Get-EntraDupe {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 function Get-IntuneApp {
     [CmdletBinding()]
@@ -559,7 +561,7 @@ function Get-IntuneApp {
 
 .NOTES
     Author: Udeh Ndukwe
-    Date: Today's Date
+    Date: 12/18/2024
 #>
 function Get-IntuneAppStatusReport {
     [CmdletBinding()]
@@ -632,7 +634,7 @@ function Get-IntuneConfigProfile {
         [switch]$AllProperties
     )
     BEGIN {
-        $configlist = @()
+        $configlist = [System.Collections.Generic.List[PSCustomObject]]::new()
 
         $Android = @(
             "microsoft.graph.androidDeviceOwnerEnterpriseWiFiConfiguration",
@@ -684,11 +686,12 @@ function Get-IntuneConfigProfile {
         if ($AllProperties) {
             $URI = "https://graph.microsoft.com/beta/deviceManagement/configurationPolicies?`$top=100"
             $result = Invoke-MgGraphRequest -Uri $URI -Method GET | Select-Object -ExpandProperty Value
-            $configlist += $result
+            $configlist.AddRange($result)
 
             $URI2 = "https://graph.microsoft.com/beta/deviceManagement/deviceConfigurations?`$count=true&`$top=100" #displayName, #@odata.type
             $result = Invoke-MgGraphRequest -Uri $URI2 -Method GET | Select-Object -ExpandProperty Value
-            $configlist += $result
+            $configlist.AddRange($result)
+            
         }
         else {
             $URI2 = "https://graph.microsoft.com/beta/deviceManagement/deviceConfigurations?`$count=true&`$top=100" #displayName, #@odata.type
@@ -722,13 +725,13 @@ function Get-IntuneConfigProfile {
         if ($Platform -eq "Windows") {
             $configlist | Where-Object { $_.platforms -in $Windows -or $_.("@odata.type") -in $Windows }
         }
-        if ($macOS) {
+        if ($Platform -eq "macOS") {
             $configlist | Where-Object { $_.platforms -in $macOS -or $_.("@odata.type") -in $macOS }
         }
-        if ($iOS) {
+        if ($Platform -eq "iOS") {
             $configlist | Where-Object { $_.platforms -in $iOS -or $_.("@odata.type") -in $iOS }
         }
-        if ($Android) {
+        if ($Platform -eq "Android") {
             $configlist | Where-Object { $_.platforms -in $Android -or $_.("@odata.type") -in $Android }
         }
     }

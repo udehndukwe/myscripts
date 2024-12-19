@@ -8,7 +8,7 @@ function Get-IntuneConfigProfile {
         [switch]$AllProperties
     )
     BEGIN {
-        $configlist = @()
+        $configlist = [System.Collections.Generic.List[PSCustomObject]]::new()
 
         $Android = @(
             "microsoft.graph.androidDeviceOwnerEnterpriseWiFiConfiguration",
@@ -60,11 +60,12 @@ function Get-IntuneConfigProfile {
         if ($AllProperties) {
             $URI = "https://graph.microsoft.com/beta/deviceManagement/configurationPolicies?`$top=100"
             $result = Invoke-MgGraphRequest -Uri $URI -Method GET | Select-Object -ExpandProperty Value
-            $configlist += $result
+            $configlist.AddRange($result)
 
             $URI2 = "https://graph.microsoft.com/beta/deviceManagement/deviceConfigurations?`$count=true&`$top=100" #displayName, #@odata.type
             $result = Invoke-MgGraphRequest -Uri $URI2 -Method GET | Select-Object -ExpandProperty Value
-            $configlist += $result
+            $configlist.AddRange($result)
+            
         }
         else {
             $URI2 = "https://graph.microsoft.com/beta/deviceManagement/deviceConfigurations?`$count=true&`$top=100" #displayName, #@odata.type
@@ -98,13 +99,13 @@ function Get-IntuneConfigProfile {
         if ($Platform -eq "Windows") {
             $configlist | Where-Object { $_.platforms -in $Windows -or $_.("@odata.type") -in $Windows }
         }
-        if ($macOS) {
+        if ($Platform -eq "macOS") {
             $configlist | Where-Object { $_.platforms -in $macOS -or $_.("@odata.type") -in $macOS }
         }
-        if ($iOS) {
+        if ($Platform -eq "iOS") {
             $configlist | Where-Object { $_.platforms -in $iOS -or $_.("@odata.type") -in $iOS }
         }
-        if ($Android) {
+        if ($Platform -eq "Android") {
             $configlist | Where-Object { $_.platforms -in $Android -or $_.("@odata.type") -in $Android }
         }
     }
