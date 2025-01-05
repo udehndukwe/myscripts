@@ -44,10 +44,10 @@ function f1 {
         [switch]$SKI
     )
 
-    $module = Get-Module Microsoft.Graph.Authentication
+    $module = Get-Module Microsoft.Graph.Authentication -ListAvailable
 
     if (-not $module) {
-        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force
+        Install-Module Microsoft.Graph.Authentication -Scope CurrentUser -Force -AllowClobber
         Connect-MgGraph
     }
     else {
