@@ -72,7 +72,7 @@ $users | ForEach-Object {
     #Sample for extension Attribute 15
     
     $ThisUser = Get-ADUser -Identity $_.SamAccountName -Properties gecos 
-      Set-ADUser –Identity $ThisUser -add @{"gecos"=$_.SamAccountName + "@thinkahead.com"}
+      Set-ADUser  –Identity $ThisUser -add @{"gecos"=$_.SamAccountName + "@thinkahead.com"}
 
 
 }
