@@ -51,3 +51,4 @@ foreach ($device in $bridgedAdapterDevices) {
     Update-DeviceCategory -ObjID $device.DeviceId -CategoryID a62acae9-8f4f-4d67-a95f-6d4311e73913
 >>>>>>> f93fc5f15612220b93465c2e4924c96b0ecd4347
 }
+
