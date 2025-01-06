@@ -11,8 +11,8 @@ function Add-GraphAppPermissions {
     # Get all app IDs for Microsoft Graph API	
 
     try {
-        $URI = "https://graph.microsoft.com/v1.0/servicePrincipals?$filter=displayName eq 'Microsoft Graph'"
-        $graphServicePrincipal = (Invoke-MgGraphRequest -Method GET -Uri $URI).value.displayName
+        $URI = "https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=displayName eq 'Microsoft Graph'"
+        $graphServicePrincipal = (Invoke-MgGraphRequest -Method GET -Uri $URI).value
 
     }
     catch {
@@ -44,7 +44,7 @@ function Add-GraphAppPermissions {
                 appRoleID   = $appRole.ID
             }
 
-            $URI = "https://graph.microsoft.com/v1.0/servicePrincipals/$($app.Id)/appRoleAssignments"
+            $URI = "https://graph.microsoft.com/v1.0/servicePrincipals/$($principalID)/appRoleAssignments"
             Invoke-MgGraphRequest -Method POST -Uri $URI -Body $params
 
     
