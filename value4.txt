@@ -1,0 +1,21 @@
+
+Name                           Value
+----                           -----
+createdDateTime                10/16/2018 4:10:40 PM
+id                             1c412bde-8e64-44b7-bc04-fa186bbfc075
+appSupportsOemConfig           False
+version                        2
+displayName                    Outlook Android at work
+payloadJson                    ewogICAgImtpbmQiOiAiYW5kcm9pZGVudGVycHJpc2UjbWFuYWdlZENvbmZpZ3VyYXRpb24iLAogICAgInByb2R1Y3RJZCI6ICJhcHA6Y29tLm1pY3Jvc29mdC5vZmZpY2Uub3V0bG9vayIsCiAgICAibWFuYWdlZ…
+@odata.type                    #microsoft.graph.androidManagedStoreAppConfiguration
+lastModifiedDateTime           10/17/2018 10:30:46 AM
+permissionActions              {}
+assignments                    {}
+assignments@odata.context      https://graph.microsoft.com/beta/$metadata#deviceAppManagement/mobileAppConfigurations('1c412bde-8e64-44b7-bc04-fa186bbfc075')/microsoft.graph.androidManagedStor…
+description                    
+profileApplicability           default
+targetedMobileApps             {5858a763-b62d-4614-8740-6dbe38375791}
+roleScopeTagIds                {0}
+connectedAppsEnabled           False
+packageId                      com.microsoft.office.outlook
+
