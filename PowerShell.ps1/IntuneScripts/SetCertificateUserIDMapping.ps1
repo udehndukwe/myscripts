@@ -1,4 +1,4 @@
-<#function Get-AllCertificateReport {
+function Get-AllCertificateReport {
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -6,35 +6,42 @@
     )
     #$Date = (Get-Date).AddMonths(6)
     $URI = 'https://graph.microsoft.com/beta/deviceManagement/deviceConfigurationsAllManagedDeviceCertificateStates'
-    Invoke-MgGraphRequest -Method GET -Uri $URI | Select-Object -expand Value 
-}#>
+    Invoke-MgGraphRequest -Method GET -Uri $URI | Select-Object -expand Value | Where-Object certificateIssuerName -EQ $IssuerName | Sort-Object certificateIssuanceDateTime | Select-Object -Last 5
+}
 
 function Get-IntuneCertificateReport {
     Add-Type -AssemblyName System.Collections
     $certificates = [System.Collections.Generic.List[PSObject]]::new()
 
+    #Create report for Windows SCEP Certificates
+
+
     # Get report for Windows SCEP Certificates
     $FileName = 'WindowsCertReport.zip'
 
-    $URI = "https://graph.microsoft.com/beta/deviceManagement/reports/exportJobs('CertificatesByRAPolicy_83d72540-0481-42d9-b56c-401a954b0d77')"
-
+    $URI = "https://graph.microsoft.com/beta/deviceManagement/reports/exportJobs('CertificatesByRAPolicy_a4907ee2-ca18-4c16-a757-715fc1350ebd')"
     $value = Invoke-MgGraphRequest -Method GET -Uri $URI
 
     try {
         Invoke-RestMethod -Uri $value.url -OutFile $FileName -ErrorAction Stop
         try {
-            Expand-Archive -Path $FileName -DestinationPath $FileName.Replace('.zip', '') -ErrorAction Stop
+            Expand-Archive -Path $FileName -DestinationPath $FileName.Replace('.zip', '') -ErrorAction Stop -Force
             $reportCSV = Get-ChildItem $FileName.Replace('.zip', '') -Filter '*.csv'
             $windowsCertificateReport = Import-Csv $reportCSV
 
         }
         catch {
+            $_.Exception.Message
             Write-Host 'Error extracting the file'
             break
         }
     }
     catch {
         Write-Host 'Error downloading the file'
+        $_.Exception.Message
+        if ($_.Exception.Message -match "Cannot validate argument on parameter 'Uri'. The argument is null or empty. Provide an argument that is not null or empty, and then try the command again.") {
+            Write-Verbose -Message 'The URL from the graph call in line 21 is empty. Please check the URI and try again.' -Verbose
+        }
         break
     }
 
@@ -160,10 +167,10 @@ function Set-CertificateUserIDMapping {
     }
 
     if ($SHA1) {
-        #$certificates = Get-CertificateReport | Where-Object userPrincipalName -EQ "$UserID"
-        #$Thumbprints = $certificates.certificateThumbprint
-        $certificates = Get-IntuneCertificateReport
-        $Thumbprints = $certificates.Thumbprint
+        $certificates = Get-AllCertificateReport | Where-Object userPrincipalNAme -EQ $UserID
+        $Thumbprints = $certificates.certificateThumbprint
+        #$certificates = Get-IntuneCertificateReport
+        #$Thumbprints = $certificates.Thumbprint
 
         $info = [System.Collections.Generic.List[string]]::new()
         foreach ($thumbprint in $Thumbprints) {
@@ -177,9 +184,10 @@ function Set-CertificateUserIDMapping {
                 )
             }
         } 
-    
+        
 
         Invoke-MgGraphRequest -Method PATCH -Uri "https://graph.microsoft.com/v1.0/users/$UserID" -Body $params -Headers @{'ConsistencyLevel' = 'eventual' } -OutputType PSObject
+
         
         Get-EntraAuthorizationInfo -EntraUser $UserID
     

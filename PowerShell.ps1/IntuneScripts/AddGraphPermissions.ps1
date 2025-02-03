@@ -25,30 +25,18 @@ function Add-GraphAppPermissions {
         $appRole = $graphServicePrincipal.AppRoles | Where-Object { $_.Value -eq $permission -and $_.AllowedMemberTypes -contains 'Application' }
 
         if ($AppDisplayName) {
-            $URI = "https://graph.microsoft.com/v1.0/servicePrincipals?$filter=displayName eq '$AppDisplayName'"
+            $URI = "https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=displayName eq '$AppDisplayName'"
             $app = (Invoke-MgGraphRequest -Method GET -Uri $URI).value
 
             $params = @{
-                principalID = $app.Id
-                resourceID  = $graphServicePrincipal.Id
-                appRoleID   = $appRole.id
+                principalId = $app.Id
+                resourceId  = $graphServicePrincipal.Id
+                appRoleId   = $appRole.id
             }
             $URI = "https://graph.microsoft.com/v1.0/servicePrincipals/$($app.Id)/appRoleAssignments"
             Invoke-MgGraphRequest -Method POST -Uri $URI -Body $params 
         }
-        else {
 
-            $params = @{
-                principalID = $principalID
-                resourceid  = $graphServicePrincipal.id
-                appRoleID   = $appRole.ID
-            }
-
-            $URI = "https://graph.microsoft.com/v1.0/servicePrincipals/$($principalID)/appRoleAssignments"
-            Invoke-MgGraphRequest -Method POST -Uri $URI -Body $params
-
-    
-        }
     }
 
 }
