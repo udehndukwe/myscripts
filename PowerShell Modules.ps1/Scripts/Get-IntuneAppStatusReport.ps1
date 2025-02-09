@@ -46,14 +46,14 @@ function Get-IntuneAppStatusReport {
     $params = @{
         filter = "(ApplicationId eq '$AppID')"
     }
-    $URI = "https://graph.microsoft.com/beta/deviceManagement/reports/getAppStatusOverviewReport"
+    $URI = 'https://graph.microsoft.com/beta/deviceManagement/reports/getAppStatusOverviewReport'
     Invoke-MgGraphRequest -Method POST -Uri $URI -OutputFilePath "$JSONPath\$FileName.json" -Body $params
     # Define the application name variable
     $AppName = Invoke-MgGraphRequest -Method GET -Uri $MobileAppURI | Select-Object -ExpandProperty DisplayName # Replace with the actual application name
 
     # Read the JSON file
     $jsonContent = Get-Content -Path "$JSONPath\$FileName.json" -Raw | ConvertFrom-Json
-    $jsonContent = $jsonContent.Values -split " " 
+    $jsonContent = $jsonContent.Values -split ' ' 
     # Extract the values from the JSON content
     $applicationId = $jsonContent[0]
     $failedDeviceCount = $jsonContent[1]
@@ -77,7 +77,7 @@ function Get-IntuneAppStatusReport {
     $TableList = @($table)
     $Date = Get-Date -Format MM/dd/yyyy
     if ($Export) {
-        $TableList | Export-Excel -Path .\AppStatusReport.xlsx -AutoSize -WorksheetName "AppInstallStatuses-$Date" -BoldTopRow -TableName "AppStatuses"
+        $TableList | Export-Excel -Path .\AppStatusReport.xlsx -AutoSize -WorksheetName "AppInstallStatuses-$Date" -BoldTopRow -TableName 'AppStatuses'
     }
     if ($Display) {
         return $TableList
