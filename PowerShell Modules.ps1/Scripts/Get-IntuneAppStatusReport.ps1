@@ -1,88 +1,58 @@
-<#
-.SYNOPSIS
-    Retrieves the status report of an Intune application.
-
-.DESCRIPTION
-    This function fetches the status report of an Intune application using its AppID. 
-    It can export the report to an Excel file and/or display it in the console.
-
-.PARAMETER AppID
-    The ID of the Intune application.
-
-.PARAMETER Export
-    Switch to export the report to an Excel file.
-
-.PARAMETER Display
-    Switch to display the report in the console.
-
-.PARAMETER JSONPath
-    The path to store the temporary JSON file. Defaults to "$env:USERPROFILE\AppJSONs".
-
-.EXAMPLE
-    Get-IntuneAppStatusReport -AppID "12345" -Export -Display
-
-.NOTES
-    Author: Udeh Ndukwe
-    Date: 12/18/2024
-#>
 function Get-IntuneAppStatusReport {
     [CmdletBinding()]
     param (
         [Parameter()]
         [string]$AppID,
-        [switch]$Export,
-        [switch]$Display,
-        [string]$JSONPath = "$env:USERPROFILE\AppJSONs"
+        [string]$AppDisplayName,
+        [string]$Platform
     )
-    # Make temp dir
-    $value = Test-Path $JSONPath
-    if (-not $value) {
-        New-Item -ItemType Directory -Path $JSONPath -ErrorAction SilentlyContinue
+    $body = @{
+        reportName       = 'AppInstallStatusAggregate'
+        localizationType = 'LocalizedValuesAsAdditionalColumn'
+        format           = 'csv'
+        select           = @(
+            'ApplicationId',
+            'DisplayName',
+            'Publisher',
+            'Platform',
+            'AppVersion',
+            'InstalledDeviceCount',
+            'FailedDeviceCount',
+            'PendingInstallDeviceCount',
+            'NotApplicableDeviceCount',
+            'NotInstalledDeviceCount',
+            'FailedDevicePercentage'
+        )
+    }
+    # Create report request in Intune
+    $request = Invoke-MgGraphRequest -Method POST -Uri '/beta/deviceManagement/reports/exportJobs' -Body $body
+
+    # Get Report Status
+    $URI = "/beta/deviceManagement/reports/exportJobs('$($request.id)')"
+    Invoke-MgGraphRequest -Method GET -Uri $URI
+    do {
+        Start-Sleep -Seconds 3
+        $reportStatus = Invoke-MgGraphRequest -Method GET -Uri $URI
+    } while ($reportStatus.status -ne 'completed')
+
+    # Download the report
+    $ReportName = $reportStatus.id
+    Invoke-RestMethod -Method GET -Uri $reportStatus.url -OutFile "$ReportName.zip"
+
+    # Extract the report as CSV and import CSV as a variable.
+    Expand-Archive -Path "$ReportName.zip" -DestinationPath $ReportName
+    $csv = Get-ChildItem $ReportName -Filter '*.csv'
+    $report = $csv | Import-Csv
+
+    # Parameters to return specific result. Returns entire report if no parameters are provided.
+    if ($appID) {
+        $report | Where-Object { $_.ApplicationId -eq $appID }
+    }
+    elseif ($AppDisplayName) {
+        $report | Where-Object { $_.DisplayName -eq $AppDisplayName }
+    }
+    else {
+        $report
     }
 
-    $MobileAppURI = "https://graph.microsoft.com/v1.0/deviceAppManagement/mobileApps/$AppID"
-    $FileName = (Invoke-MgGraphRequest -Method GET -Uri $MobileAppURI | Select-Object -ExpandProperty DisplayName) -replace '[^a-zA-Z0-9]', '' # Replace with the actual application name
-
-    $params = @{
-        filter = "(ApplicationId eq '$AppID')"
-    }
-    $URI = 'https://graph.microsoft.com/beta/deviceManagement/reports/getAppStatusOverviewReport'
-    Invoke-MgGraphRequest -Method POST -Uri $URI -OutputFilePath "$JSONPath\$FileName.json" -Body $params
-    # Define the application name variable
-    $AppName = Invoke-MgGraphRequest -Method GET -Uri $MobileAppURI | Select-Object -ExpandProperty DisplayName # Replace with the actual application name
-
-    # Read the JSON file
-    $jsonContent = Get-Content -Path "$JSONPath\$FileName.json" -Raw | ConvertFrom-Json
-    $jsonContent = $jsonContent.Values -split ' ' 
-    # Extract the values from the JSON content
-    $applicationId = $jsonContent[0]
-    $failedDeviceCount = $jsonContent[1]
-    $pendingInstallDeviceCount = $jsonContent[2]
-    $installedDeviceCount = $jsonContent[3]
-    $notInstalledDeviceCount = $jsonContent[4]
-    $notApplicableDeviceCount = $jsonContent[5]
-
-    # Create a custom object for the table
-    $table = [PSCustomObject]@{
-        AppName                   = $AppName
-        ApplicationId             = $applicationId
-        FailedDeviceCount         = $failedDeviceCount
-        PendingInstallDeviceCount = $pendingInstallDeviceCount
-        InstalledDeviceCount      = $installedDeviceCount
-        NotInstalledDeviceCount   = $notInstalledDeviceCount
-        NotApplicableDeviceCount  = $notApplicableDeviceCount
-    }
-
-    # Display the table
-    $TableList = @($table)
-    $Date = Get-Date -Format MM/dd/yyyy
-    if ($Export) {
-        $TableList | Export-Excel -Path .\AppStatusReport.xlsx -AutoSize -WorksheetName "AppInstallStatuses-$Date" -BoldTopRow -TableName 'AppStatuses'
-    }
-    if ($Display) {
-        return $TableList
-    }
-
-    # Clean temp directory
-    Remove-Item -Path $JSONPath -Recurse -Force
 }

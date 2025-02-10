@@ -1,0 +1,17 @@
+{
+    "reportName": "Devices",
+    "filter": "(OwnerType eq '1')",
+    "localizationType": "LocalizedValuesAsAdditionalColumn",
+    "format": "json",
+    "select": [
+        "DeviceName",
+        "managementAgent",
+        "ownerType",
+        "complianceState",
+        "OS",
+        "OSVersion",
+        "LastContact",
+        "UPN",
+        "DeviceId"
+    ]
+}
