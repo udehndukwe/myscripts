@@ -1,3 +1,5 @@
+# Install script that uses Chocolatey. Provide package name to install the application.
+
 function Install-Application {
     param (
         [string]$PackageName

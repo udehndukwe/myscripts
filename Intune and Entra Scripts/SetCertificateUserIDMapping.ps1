@@ -128,31 +128,6 @@ function Set-CertificateUserIDMapping {
         }
     }
 
-    <#$ID = Invoke-MgGraphRequest -uri "https://graph.microsoft.com/v1.0/users/$UserID" | Select -expand Id
-    if ($Serial) {
-        $certificates = Get-CertificateReport
-        $Issuer = $certificates.IssuerName
-        $cert = @()
-        foreach ($certificate in $certificates) {
-            $cert += $certificate | Where-Object UPN -EQ "$UserID"
-        }
-        $SerialNumber = $cert | Where-Object SerialNumber | Select-Object -ExpandProperty SerialNumber
-        $Info = @()
-        foreach ($serialno in $SerialNumber) {
-            $Info += "X509:<I>$Issuer<SR>$serialno" 
-        }
-    
-        $params = @{
-            authorizationInfo = @{
-                certificateUserIds = @(
-                    foreach ($item in $info) {
-                        $item
-                    }   
-                )
-            }
-        }
-    }#>
-
     if ($SKI) {
         $mycert = Get-hildItem cert:\CurrentUser\My\ | Where-Object Subject -Like "*E=$UserID*"
         $SubjectKeyID = $mycert.Extensions | Where-Object { $_.Oid.FriendlyName -eq 'Subject Key Identifier' } | Select-Object -expand SubjectKeyIdentifier    
