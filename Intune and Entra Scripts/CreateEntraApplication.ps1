@@ -1,16 +1,10 @@
-﻿function New-EntraApplication {
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [string]$DisplayName
-    )
+﻿$DisplayName = "IntuneBrew"
 
-    #Create Application
-    $app = new-MgApplication -DisplayName "IntuneCD"
+#Create Application
+$app = new-MgApplication -DisplayName $DisplayName
 
-    #Create service principal
-    $svcPrincipal = New-MgServicePrincipal -AppID $app.Id
+#Create service principal
+$svcPrincipal = New-MgServicePrincipal -AppID $app.AppId
 
-    Write-Output $app
-    Write-Output $svcPrincipal
-}
+Write-Output $app
+Write-Output $svcPrincipal

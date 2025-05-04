@@ -1,0 +1,301 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "triggers": {
+            "When_a_new_response_is_submitted": {
+                "type": "ApiConnectionWebhook",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['microsoftforms']['connectionId']"
+                        }
+                    },
+                    "body": {
+                        "eventType": "responseAdded",
+                        "notificationUrl": "@listCallbackUrl()",
+                        "source": "ms-connector"
+                    },
+                    "path": "/formapi/api/forms/@{encodeURIComponent('g4t5bWkXKUqfd4ufrhVg34qsQqFPSuxPkw1h7W0Anx5UNTlOU09VMFgyTlNOMTVBOEZXM1hKWkQyUS4u')}/webhooks"
+                },
+                "splitOn": "@triggerBody()?['value']"
+            }
+        },
+        "actions": {
+            "Get_response_details": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['microsoftforms']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/formapi/api/forms('@{encodeURIComponent('g4t5bWkXKUqfd4ufrhVg34qsQqFPSuxPkw1h7W0Anx5UNTlOU09VMFgyTlNOMTVBOEZXM1hKWkQyUS4u')}')/responses",
+                    "queries": {
+                        "response_id": "@triggerBody()?['resourceData']?['responseId']"
+                    }
+                },
+                "runAfter": {}
+            },
+            "HTTP_GET_DEVICE": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "https://graph.microsoft.com/v1.0/devices?$filter=displayName%20eq%20'@{outputs('Get_response_details')?['body/r99060f71a3ae489b8bd294dc08fb181a']}'",
+                    "method": "GET",
+                    "authentication": {
+                        "type": "ManagedServiceIdentity",
+                        "audience": "https://graph.microsoft.com"
+                    }
+                },
+                "runAfter": {
+                    "Get_response_details": [
+                        "Succeeded"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Parse_JSON": {
+                "type": "ParseJson",
+                "inputs": {
+                    "content": "@body('HTTP_GET_DEVICE')",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "@@odata.context": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "deletedDateTime": {},
+                                        "accountEnabled": {
+                                            "type": "boolean"
+                                        },
+                                        "approximateLastSignInDateTime": {
+                                            "type": "string"
+                                        },
+                                        "complianceExpirationDateTime": {},
+                                        "createdDateTime": {
+                                            "type": "string"
+                                        },
+                                        "deviceCategory": {},
+                                        "deviceId": {
+                                            "type": "string"
+                                        },
+                                        "deviceMetadata": {},
+                                        "deviceOwnership": {
+                                            "type": "string"
+                                        },
+                                        "deviceVersion": {
+                                            "type": "integer"
+                                        },
+                                        "displayName": {
+                                            "type": "string"
+                                        },
+                                        "domainName": {},
+                                        "enrollmentProfileName": {},
+                                        "enrollmentType": {
+                                            "type": "string"
+                                        },
+                                        "externalSourceName": {},
+                                        "isCompliant": {
+                                            "type": "boolean"
+                                        },
+                                        "isManaged": {
+                                            "type": "boolean"
+                                        },
+                                        "isRooted": {
+                                            "type": "boolean"
+                                        },
+                                        "managementType": {
+                                            "type": "string"
+                                        },
+                                        "manufacturer": {
+                                            "type": "string"
+                                        },
+                                        "mdmAppId": {
+                                            "type": "string"
+                                        },
+                                        "model": {
+                                            "type": "string"
+                                        },
+                                        "onPremisesLastSyncDateTime": {},
+                                        "onPremisesSyncEnabled": {},
+                                        "operatingSystem": {
+                                            "type": "string"
+                                        },
+                                        "operatingSystemVersion": {
+                                            "type": "string"
+                                        },
+                                        "physicalIds": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "profileType": {
+                                            "type": "string"
+                                        },
+                                        "registrationDateTime": {
+                                            "type": "string"
+                                        },
+                                        "sourceType": {},
+                                        "systemLabels": {
+                                            "type": "array"
+                                        },
+                                        "trustType": {
+                                            "type": "string"
+                                        },
+                                        "extensionAttributes": {
+                                            "type": "object",
+                                            "properties": {
+                                                "extensionAttribute1": {},
+                                                "extensionAttribute2": {},
+                                                "extensionAttribute3": {},
+                                                "extensionAttribute4": {},
+                                                "extensionAttribute5": {},
+                                                "extensionAttribute6": {},
+                                                "extensionAttribute7": {},
+                                                "extensionAttribute8": {},
+                                                "extensionAttribute9": {},
+                                                "extensionAttribute10": {},
+                                                "extensionAttribute11": {},
+                                                "extensionAttribute12": {},
+                                                "extensionAttribute13": {},
+                                                "extensionAttribute14": {},
+                                                "extensionAttribute15": {}
+                                            }
+                                        },
+                                        "alternativeSecurityIds": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "integer"
+                                                    },
+                                                    "identityProvider": {},
+                                                    "key": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "identityProvider",
+                                                    "key"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "deletedDateTime",
+                                        "accountEnabled",
+                                        "approximateLastSignInDateTime",
+                                        "complianceExpirationDateTime",
+                                        "createdDateTime",
+                                        "deviceCategory",
+                                        "deviceId",
+                                        "deviceMetadata",
+                                        "deviceOwnership",
+                                        "deviceVersion",
+                                        "displayName",
+                                        "domainName",
+                                        "enrollmentProfileName",
+                                        "enrollmentType",
+                                        "externalSourceName",
+                                        "isCompliant",
+                                        "isManaged",
+                                        "isRooted",
+                                        "managementType",
+                                        "manufacturer",
+                                        "mdmAppId",
+                                        "model",
+                                        "onPremisesLastSyncDateTime",
+                                        "onPremisesSyncEnabled",
+                                        "operatingSystem",
+                                        "operatingSystemVersion",
+                                        "physicalIds",
+                                        "profileType",
+                                        "registrationDateTime",
+                                        "sourceType",
+                                        "systemLabels",
+                                        "trustType",
+                                        "extensionAttributes",
+                                        "alternativeSecurityIds"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "HTTP_GET_DEVICE": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "For_each": {
+                "type": "Foreach",
+                "foreach": "@outputs('Parse_JSON')?['body']?['value']",
+                "actions": {
+                    "HTTP": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "https://graph.microsoft.com/v1.0/devices/@{items('For_each')?['id']}",
+                            "method": "PATCH",
+                            "body": {
+                                "extensionAttributes": {
+                                    "extensionAttribute1": "@{body('Get_response_details')?['rb779303eb40c4d2b99e4129127367a15']}"
+                                }
+                            },
+                            "authentication": {
+                                "type": "ManagedServiceIdentity",
+                                "audience": "https://graph.microsoft.com"
+                            }
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                }
+            }
+        },
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "type": "Object",
+                "defaultValue": {}
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "type": "Object",
+            "value": {
+                "microsoftforms": {
+                    "id": "/subscriptions/befc3c6b-87e4-4880-b2db-ceffd7a96547/providers/Microsoft.Web/locations/eastus2/managedApis/microsoftforms",
+                    "connectionId": "/subscriptions/befc3c6b-87e4-4880-b2db-ceffd7a96547/resourceGroups/EntraResources/providers/Microsoft.Web/connections/microsoftforms",
+                    "connectionName": "microsoftforms"
+                }
+            }
+        }
+    }
+}
