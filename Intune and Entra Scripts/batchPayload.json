@@ -1,0 +1,6 @@
+[
+    "https://graph.microsoft.com/beta/deviceManagement/deviceConfigurations",
+    "https://graph.microsoft.com/beta/deviceManagement/groupPolicyConfigurations",
+    "https://graph.microsoft.com/beta/deviceManagement/configurationPolicies",
+    "https://graph.microsoft.com/beta/deviceManagement/hardwareConfigurations"
+]

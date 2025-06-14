@@ -1,0 +1,29 @@
+{
+    "requests": [
+        {
+            "id": "/deviceManagement/deviceConfigurations",
+            "method": "POST",
+            "url": "/deviceManagement/deviceConfigurations"
+        },
+        {
+            "id": "/deviceManagement/groupPolicyConfigurations",
+            "method": "POST",
+            "url": "/deviceManagement/groupPolicyConfigurations"
+        },
+        {
+            "id": "/deviceManagement/configurationPolicies",
+            "method": "POST",
+            "url": "/deviceManagement/configurationPolicies"
+        },
+        {
+            "id": "/deviceManagement/inventoryPolicies",
+            "method": "POST",
+            "url": "/deviceManagement/inventoryPolicies"
+        },
+        {
+            "id": "/deviceManagement/hardwareConfigurations",
+            "method": "POST",
+            "url": "/deviceManagement/hardwareConfigurations"
+        }
+    ]
+}
